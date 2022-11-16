@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript" src="../vuejs/vuejs-2.5.16.js"></script>
+    <script type="text/javascript" src="../vuejs/axios-0.18.0.js"></script>
+</head>
+<body>
+    <div id="goodsdiv" align="center">
+        <div id="goodslistdiv">
+            <table border="1" rules="all">
+                <tr>
+                    <td colspan="100">
+                        商品名称<input v-model="searchEntity.gname"/>价格：
+                        <input type="number" v-model="searchEntity.gprice">--
+                        <input type="number" v-model="searchEntity.egprice"/>
+                        <input type="button" value="检索" @click="findAll()"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox"/></td>
+                    <th>编号</th>
+                    <th>名称</th>
+                    <th>价格</th>
+                    <th>产地</th>
+                    <th>品牌</th>
+                    <th>商家</th>
+                    <th>操作</th>
+                </tr>
+                <tr v-for="g in goodsList">
+                    <td>
+                        <input type="checkbox" v-model="gids" :value="g.gid"/>
+                    </td>
+                    <td>{{g.gid}}</td>
+                    <td>{{g.gname}}</td>
+                    <td>{{g.gprice}}</td>
+                    <td>{{g.gaddress}}</td>
+                    <td>{{g.sellerBean.sname}}</td>
+                    <td>{{g.brandBean.bname}}</td>
+                    <td>
+                        <input type="button" @click="deleteBY(g.gid)" value="删除"/>
+                        <input type="button" @click="toUpdateGoods(g.gid)" value="修改"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="100">
+                        当前{{pageInfo.pageNum}}/{{pageInfo.pages}}页，共计{{pageInfo.total}}条记录;
+                        <input type="button" value="首页" @click="paging(1)"/>
+                        <input type="button" value="上一页" @click="paging(pageInfo.prePage)"/>
+                        <input type="button" value="下一页" @click="paging(pageInfo.nextPage)"/>
+                        <input type="button" value="尾页" @click="paging(pageInfo.pages)"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="100">
+                        <input type="button" value="批量删除" @click="deleteById()">
+                        <input type="button" value="添加" @click="toAddGoods()">
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+
+
+        <div id="goodsadddiv">
+            <table border="1" rules="all">
+                <tr>
+                    <td>商品名称</td>
+                    <td>
+                        <input v-model="goodsBean.gname">
+                    </td>
+                </tr>
+                <tr>
+                    <td>商品价格</td>
+                    <td>
+                        <input type="number" v-model="goodsBean.gprice">
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>品牌</td>
+                    <td>
+                        <select v-model="goodsBean.id">
+                            <option v-for="b in brandList" :value="b.id">{{b.bname}}</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>商家</td>
+                    <td>
+                        <select v-model="goodsBean.sid">
+                            <option v-for="s in sellerList" :value="s.sid">{{s.sname}}</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>地址</td>
+                    <td>
+                        <input v-model="goodsBean.gaddress"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="20">
+                        <select v-model="proid" @change="getCityList()">
+                            <option :value="-1">--请选择省--</option>
+                            <option v-for="p in proList" :value="p.id">{{p.cname}}</option>
+                        </select>
+                        <select v-model="cityid" @change="getCouList()">
+                            <option :value="-1">--请选择市--</option>
+                            <option v-for="c in cityList" :value="c.id">{{c.cname}}</option>
+                        </select>
+                        <select v-model="couid" @change="getGaddress()">
+                            <option :value="-1">--请选择市--</option>
+                            <option v-for="cou in couList" :value="cou.id">{{cou.cname}}</option>
+                        </select>
+                    </td>
+                </tr>
+
+                <tr align="center">
+                    <td colspan="100">
+                        <input type="button" value="保存" @click="saveGoods()"/>
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+
+
+
+
+        <div id="goodsupdatediv">
+            <table border="1" rules="all">
+                <tr>
+                    <td>商品id</td>
+                    <td>
+                        <input  v-model="goodsBean.gid" :value="goodsBean.gid">
+                    </td>
+                </tr>
+                <tr>
+                    <td>商品名称</td>
+                    <td>
+                        <input v-model="goodsBean.gname">
+                    </td>
+                </tr>
+                <tr>
+                    <td>商品价格</td>
+                    <td>
+                        <input type="number" v-model="goodsBean.gprice">
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>品牌</td>
+                    <td>
+                        <select v-model="goodsBean.id">
+                            <option v-for="b in brandList" :value="b.id">{{b.bname}}</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>商家</td>
+                    <td>
+                        <select v-model="goodsBean.sid">
+                            <option v-for="s in sellerList" :value="s.sid">{{s.sname}}</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>地址</td>
+                    <td>
+                        <input v-model="goodsBean.gaddress"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="20">
+                        <select v-model="proid" @change="getCityList()">
+                            <option :value="-1">--请选择省--</option>
+                            <option v-for="p in proList" :value="p.id">{{p.cname}}</option>
+                        </select>
+                        <select v-model="cityid" @change="getCouList()">
+                            <option :value="-1">--请选择市--</option>
+                            <option v-for="c in cityList" :value="c.id">{{c.cname}}</option>
+                        </select>
+                        <select v-model="couid" @change="getGaddress()">
+                            <option :value="-1">--请选择市--</option>
+                            <option v-for="cou in couList" :value="cou.id">{{cou.cname}}</option>
+                        </select>
+                    </td>
+                </tr>
+
+                <tr align="center">
+                    <td colspan="100">
+                        <input type="button" value="修改" @click="updateGoods()"/>
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+    </div>
+    <script type="text/javascript" src="../pagejs/goods_list.js"></script>
+</body>
+</html>

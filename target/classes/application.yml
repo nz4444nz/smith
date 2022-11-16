@@ -1,0 +1,23 @@
+server:
+  port: 8089
+  servlet:
+    context-path: /
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql:///day1020?characterEncoding=utf-8&serverTimezone=GMT%2B8
+    username: root
+    password: 1234
+    type: com.alibaba.druid.pool.DruidDataSource
+
+mybatis:
+  mapper-locations: mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+  type-aliases-package: com.lening.daylast.entity
+
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
